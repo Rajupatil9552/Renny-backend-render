@@ -1,0 +1,30 @@
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+dist/
+build/
+out/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+
+
+
+# Mac + Windows
+.DS_Store
+desktop.ini
