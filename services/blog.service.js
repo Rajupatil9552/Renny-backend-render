@@ -1,4 +1,4 @@
-import Blog from "../models/Blog.model.js";
+import Blog from "../models/BlogModel.js";
 import slugify from "slugify";
 
 /* =====================

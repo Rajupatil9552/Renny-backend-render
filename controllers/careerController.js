@@ -1,4 +1,4 @@
-import Career from "../models/Career.model.js";
+import Career from "../models/CareerModel.js";
 
 export const applyCareer = async (req, res) => {
   try {

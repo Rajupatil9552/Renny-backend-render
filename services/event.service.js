@@ -1,4 +1,4 @@
-import Event from "../models/Event.model.js";
+import Event from "../models/EventModel.js";
 import slugify from "slugify";
 
 /* =====================

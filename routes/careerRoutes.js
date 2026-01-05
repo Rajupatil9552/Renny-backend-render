@@ -1,5 +1,5 @@
 import express from "express";
-import { applyCareer } from "../controllers/career.controller.js";
+import { applyCareer } from "../controllers/careerController.js";
 //import { uploadResume } from "../middlewares/upload.middleware.js";
 
 const router = express.Router();

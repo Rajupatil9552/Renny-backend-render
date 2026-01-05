@@ -1,4 +1,4 @@
-import News from "../models/News.model.js";
+import News from "../models/Newsmodel.js";
 import slugify from "slugify";
 
 /* =====================

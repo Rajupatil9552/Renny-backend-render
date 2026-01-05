@@ -5,7 +5,7 @@ import {
   createNews,
   updateNews,
   deleteNews
-} from "../controllers/news.controller.js";
+} from "../controllers/newsController.js";
 
 import { sanitizeContent } from "../middlewares/sanitizeHtml.js";
 

@@ -5,7 +5,7 @@ import {
   createBlog,
   updateBlog,
   deleteBlog
-} from "../controllers/blog.controller.js";
+} from "../controllers/blogController.js";
 
 import { sanitizeContent } from "../middlewares/sanitizeHtml.js";
 

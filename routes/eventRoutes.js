@@ -5,7 +5,7 @@ import {
   createEvent,
   updateEvent,
   deleteEvent
-} from "../controllers/event.controller.js";
+} from "../controllers/eventController.js";
 
 import { sanitizeContent } from "../middlewares/sanitizeHtml.js";
 
