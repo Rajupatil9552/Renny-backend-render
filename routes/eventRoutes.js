@@ -1,37 +1,14 @@
 import express from "express";
-import {
-  getEvents,
-  getEventBySlug,
-  createEvent,
-  updateEvent,
-  deleteEvent
-} from "../controllers/eventController.js";
-
-import { sanitizeContent } from "../middlewares/sanitizeHtml.js";
-
 const router = express.Router();
+import { upsertEvent, getAllEvents, deleteEvent } from "../controllers/eventController.js";
 
-/* =========================
-   PUBLIC ROUTES (READ)
-========================= */
+// Public: Get events | Admin: Get all including drafts with ?role=admin
+router.get("/", getAllEvents);
 
-// GET /api/events
-router.get("/", getEvents);
+// Admin: Create or Update
+router.post("/upsert", upsertEvent);
 
-// GET /api/events/:slug
-router.get("/:slug", getEventBySlug);
-
-/* =========================
-   CMS ROUTES (WRITE)
-========================= */
-
-// POST /cms/events
-router.post("/", sanitizeContent, createEvent);
-
-// PUT /cms/events/:id
-router.put("/:id", sanitizeContent, updateEvent);
-
-// DELETE /cms/events/:id
+// Admin: Delete
 router.delete("/:id", deleteEvent);
 
 export default router;

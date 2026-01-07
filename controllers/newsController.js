@@ -1,88 +1,34 @@
-import AppError from "../utils/AppError.js";
-import {
-  createNewsService,
-  updateNewsService,
-  deleteNewsService,
-  getNewsService,
-  getNewsBySlugService
-} from "../services/news.service.js";
+import News from "../models/Newsmodel.js";
 
-/* ======================
-   PUBLIC (READ)
-====================== */
-
-// GET /api/news
-export const getAllNews = async (req, res, next) => {
+// Create or Update News
+export const upsertNews = async (req, res) => {
+  const { id, ...data } = req.body;
   try {
-    const filter = req.query.status ? { status: req.query.status } : {};
-    const news = await getNewsService(filter);
+    const news = id 
+      ? await News.findByIdAndUpdate(id, data, { new: true }) 
+      : await News.create(data);
+    res.status(200).json({ success: true, data: news });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Get All News (Sorted by 'order' or 'createdAt')
+export const getAllNews = async (req, res) => {
+  try {
+    const news = await News.find({ status: "published" }).sort({ createdAt: -1 });
     res.status(200).json(news);
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-// GET /api/news/:slug
-export const getNewsBySlug = async (req, res, next) => {
+// Delete News
+export const deleteNews = async (req, res) => {
   try {
-    const news = await getNewsBySlugService(req.params.slug);
-
-    if (!news) {
-      return next(new AppError("News not found", 404));
-    }
-
-    res.status(200).json(news);
-  } catch (error) {
-    next(error);
-  }
-};
-
-/* ======================
-   CMS (WRITE)
-====================== */
-
-// POST /cms/news
-export const createNews = async (req, res, next) => {
-  try {
-    const { title, content } = req.body;
-
-    if (!title || !content) {
-      return next(new AppError("Title and content are required", 400));
-    }
-
-    const news = await createNewsService(req.body);
-    res.status(201).json(news);
-  } catch (error) {
-    next(error);
-  }
-};
-
-// PUT /cms/news/:id
-export const updateNews = async (req, res, next) => {
-  try {
-    const news = await updateNewsService(req.params.id, req.body);
-
-    if (!news) {
-      return next(new AppError("News not found", 404));
-    }
-
-    res.status(200).json(news);
-  } catch (error) {
-    next(error);
-  }
-};
-
-// DELETE /cms/news/:id
-export const deleteNews = async (req, res, next) => {
-  try {
-    const news = await deleteNewsService(req.params.id);
-
-    if (!news) {
-      return next(new AppError("News not found", 404));
-    }
-
-    res.status(204).send();
-  } catch (error) {
-    next(error);
+    await News.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "News deleted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };

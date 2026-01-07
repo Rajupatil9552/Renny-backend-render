@@ -1,90 +1,37 @@
-import AppError from "../utils/AppError.js";
-import {
-  createEventService,
-  updateEventService,
-  deleteEventService,
-  getEventsService,
-  getEventBySlugService
-} from "../services/event.service.js";
+import Event from "../models/EventModel.js";
 
-/* ======================
-   PUBLIC (READ)
-====================== */
-
-// GET /api/events
-export const getEvents = async (req, res, next) => {
+// [CREATE or UPDATE] - Upsert logic
+export const upsertEvent = async (req, res) => {
+  const { id, ...data } = req.body;
   try {
-    const filter = req.query.status ? { status: req.query.status } : {};
-    const events = await getEventsService(filter);
-    res.status(200).json(events);
-  } catch (error) {
-    next(error);
+    const event = id 
+      ? await Event.findByIdAndUpdate(id, data, { new: true }) 
+      : await Event.create(data);
+    res.status(200).json({ success: true, data: event });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
-// GET /api/events/:slug
-export const getEventBySlug = async (req, res, next) => {
+// [READ] - Get all events
+export const getAllEvents = async (req, res) => {
   try {
-    const event = await getEventBySlugService(req.params.slug);
-
-    if (!event) {
-      return next(new AppError("Event not found", 404));
-    }
-
-    res.status(200).json(event);
-  } catch (error) {
-    next(error);
+    const { role } = req.query;
+    // If not admin, only show published events
+    const query = role === 'admin' ? {} : { status: "published" };
+    const events = await Event.find(query).sort({ order: 1, createdAt: -1 });
+    res.status(200).json({ success: true, data: events });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
-/* ======================
-   CMS (WRITE)
-====================== */
-
-// POST /cms/events
-export const createEvent = async (req, res, next) => {
+// [DELETE]
+export const deleteEvent = async (req, res) => {
   try {
-    const { title, description, eventDate } = req.body;
-
-    if (!title || !description || !eventDate) {
-      return next(
-        new AppError("Title, description and event date are required", 400)
-      );
-    }
-
-    const event = await createEventService(req.body);
-    res.status(201).json(event);
-  } catch (error) {
-    next(error);
-  }
-};
-
-// PUT /cms/events/:id
-export const updateEvent = async (req, res, next) => {
-  try {
-    const event = await updateEventService(req.params.id, req.body);
-
-    if (!event) {
-      return next(new AppError("Event not found", 404));
-    }
-
-    res.status(200).json(event);
-  } catch (error) {
-    next(error);
-  }
-};
-
-// DELETE /cms/events/:id
-export const deleteEvent = async (req, res, next) => {
-  try {
-    const event = await deleteEventService(req.params.id);
-
-    if (!event) {
-      return next(new AppError("Event not found", 404));
-    }
-
-    res.status(204).send();
-  } catch (error) {
-    next(error);
+    await Event.findByIdAndDelete(req.params.id);
+    res.status(200).json({ success: true, message: "Event deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };

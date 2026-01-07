@@ -1,48 +1,16 @@
 import mongoose from "mongoose";
 
-const newsSchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: true,
-      trim: true
-    },
-
-    slug: {
-      type: String,
-      unique: true,
-      index: true
-    },
-
-    summary: {
-      type: String, // short text for listing cards
-      trim: true
-    },
-
-    content: {
-      type: String,
-      required: true // HTML allowed (<p>, <b>, etc.)
-    },
-
-    image: {
-      type: String // image URL or filename
-    },
-
-    source: {
-      type: String // optional external source / reference
-    },
-
-    status: {
-      type: String,
-      enum: ["draft", "published"],
-      default: "draft"
-    },
-
-    publishedAt: {
-      type: Date
-    }
+const newsSchema = new mongoose.Schema({
+  title: { type: String, required: true, trim: true },
+  description: { type: String, required: true },
+  externalLink: { type: String, required: true }, // The URL to the news site
+  imageUrl: { type: String, required: true },    // News source logo or image
+  status: { 
+    type: String, 
+    enum: ["draft", "published"], 
+    default: "published" 
   },
-  { timestamps: true }
-);
+  order: { type: Number, default: 0 } // To control which news appears first
+}, { timestamps: true });
 
 export default mongoose.model("News", newsSchema);

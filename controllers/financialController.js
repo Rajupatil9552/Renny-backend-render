@@ -14,11 +14,16 @@ export const getFinancials = async (req, res) => {
 
 // 1. Create or Update a Category (Upsert Logic)
 export const upsertFinancialCategory = async (req, res) => {
-  const { label, slug, order, documents } = req.body;
+  const { label, slug, order, title, fileUrl } = req.body; // Extract individual fields
   try {
     const category = await Financial.findOneAndUpdate(
       { slug },
-      { label, order, ...(documents && { documents }) },
+      { 
+        $set: { label, order }, // Set the category info
+        ...(title && fileUrl && { 
+          $push: { documents: { title, fileUrl } } // Push the new document
+        })
+      },
       { new: true, upsert: true }
     );
     res.status(200).json(category);

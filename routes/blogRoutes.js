@@ -1,37 +1,20 @@
 import express from "express";
-import {
-  getBlogs,
-  getBlogBySlug,
-  createBlog,
-  updateBlog,
-  deleteBlog
+const router = express.Router();
+import { 
+  createBlog, 
+  getBlogs, 
+  getBlog, 
+  updateBlog, 
+  deleteBlog 
 } from "../controllers/blogController.js";
 
-import { sanitizeContent } from "../middlewares/sanitizeHtml.js";
+// Public & Admin Read
+router.get("/", getBlogs);             // ?role=admin for all, else published
+router.get("/:identifier", getBlog);   // identifier can be slug or ID
 
-const router = express.Router();
-
-/* =========================
-   PUBLIC ROUTES (READ)
-========================= */
-
-// GET /api/blogs
-router.get("/", getBlogs);
-
-// GET /api/blogs/:slug
-router.get("/:slug", getBlogBySlug);
-
-/* =========================
-   CMS ROUTES (WRITE)
-========================= */
-
-// POST /cms/blogs
-router.post("/", sanitizeContent, createBlog);
-
-// PUT /cms/blogs/:id
-router.put("/:id", sanitizeContent, updateBlog);
-
-// DELETE /cms/blogs/:id
-router.delete("/:id", deleteBlog);
+// Admin Operations
+router.post("/", createBlog);          // Create New
+router.put("/:id", updateBlog);        // Update Existing
+router.delete("/:id", deleteBlog);     // Delete
 
 export default router;

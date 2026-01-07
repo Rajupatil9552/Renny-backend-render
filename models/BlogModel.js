@@ -1,49 +1,38 @@
 import mongoose from "mongoose";
 
-const faqSchema = new mongoose.Schema(
-  {
-    question: { type: String, required: true },
-    answer: { type: String, required: true } // HTML allowed
+const sectionSchema = new mongoose.Schema({
+  type: { 
+    type: String, 
+    enum: ["paragraph", "heading", "numbered-list", "bullet-list"], 
+    required: true 
   },
-  { _id: false }
-);
+  content: { type: String }, // Used for paragraphs and headings
+  listItems: [{              // Used for lists (Item title + Description)
+    title: String,
+    description: String
+  }]
+}, { _id: false });
 
-const blogSchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: true,
-      trim: true
-    },
-
-    slug: {
-      type: String,
-      unique: true,
-      index: true
-    },
-
-    content: {
-      type: String,
-      required: true // HTML string (<p>, <b>, etc.)
-    },
-
-    faqs: [faqSchema],
-
-    image: {
-      type: String // URL or filename
-    },
-
-    status: {
-      type: String,
-      enum: ["draft", "published"],
-      default: "draft"
-    },
-
-    publishedAt: {
-      type: Date
-    }
+const blogSchema = new mongoose.Schema({
+  title: { type: String, required: true, trim: true },
+  slug: { type: String, unique: true, lowercase: true },
+  excerpt: { type: String, required: true },
+  mainImage: { type: String },
+  bodySections: [sectionSchema],
+  status: { 
+    type: String, 
+    enum: ["draft", "published"], 
+    default: "draft" 
   },
-  { timestamps: true }
-);
+  publishedAt: { type: Date }
+}, { timestamps: true });
+
+// Auto-generate slug from title
+blogSchema.pre("save", function(next) {
+  if (this.isModified("title")) {
+    this.slug = this.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  }
+  next();
+});
 
 export default mongoose.model("Blog", blogSchema);
