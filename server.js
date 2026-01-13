@@ -16,6 +16,7 @@ import shareholdingRoutes from './routes/shareholdingRoutes.js';
 import policiesRoutes from './routes/policiesRoutes.js';
 import ipoAvRoutes from './routes/ipoAvRoutes.js';
 import governanceRoutes from './routes/governanceRoutes.js';
+import sustainabilityRoutes from './routes/sustainabilityRoutes.js';
 
 const app = express();
 
@@ -31,6 +32,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/blogs', blogRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/events', eventRoutes);
+app.use("/api/contact", contactRoutes);
+app.use('/api/career', careerRoutes);
 app.use('/api/financials', financialRoutes);
 app.use('/api/industry-report', industryReportRoutes);
 app.use('/api/ipo-documents', ipoDocumentsRoutes);
@@ -38,11 +41,13 @@ app.use('/api/shareholding-pattern', shareholdingRoutes);
 app.use('/api/policies', policiesRoutes);
 app.use('/api/ipo-av', ipoAvRoutes);
 app.use('/api/governance', governanceRoutes);
-
+app.use('/api/sustainability', sustainabilityRoutes);
 // CMS APIs -> crud operations - Used by your Admin Panel
 app.use('/cms/blogs', blogRoutes);
 app.use('/cms/news', newsRoutes);
 app.use('/cms/events', eventRoutes);
+app.use("/cms/contact", contactRoutes);
+app.use('/cms/career', careerRoutes);
 app.use('/cms/financials', financialRoutes);
 app.use('/cms/industry-report', industryReportRoutes);
 app.use('/cms/ipo-documents', ipoDocumentsRoutes);
@@ -50,6 +55,7 @@ app.use('/cms/policies', policiesRoutes);
 app.use('/cms/shareholding-pattern', shareholdingRoutes);
 app.use('/cms/ipo-av', ipoAvRoutes);
 app.use('/cms/governance', governanceRoutes);
+app.use('/cms/sustainability', sustainabilityRoutes);
 // Health check
 app.use((req, res, next) => {
   res.status(404).send('Route not found');

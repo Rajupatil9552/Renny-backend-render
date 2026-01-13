@@ -27,12 +27,15 @@ const blogSchema = new mongoose.Schema({
   publishedAt: { type: Date }
 }, { timestamps: true });
 
-// Auto-generate slug from title
-blogSchema.pre("save", function(next) {
-  if (this.isModified("title")) {
-    this.slug = this.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+// Auto-generate slug from title - Fixed Version
+blogSchema.pre("save", async function() {
+  if (this.isModified("title") && this.title) {
+    this.slug = this.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric with hyphens
+      .replace(/(^-|-$)+/g, '');    // Trim hyphens from start/end
   }
-  next();
+  
 });
 
-export default mongoose.model("Blog", blogSchema);
+export default mongoose.model("Blog", blogSchema);  

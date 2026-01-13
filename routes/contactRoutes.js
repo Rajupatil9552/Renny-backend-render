@@ -1,8 +1,13 @@
 import express from "express";
-import { createContact } from "../controllers/contactController.js";
+import { submitEnquiry, getAllEnquiries, deleteEnquiry } from "../controllers/contactController.js";
 
 const router = express.Router();
 
-router.post("/", createContact);
+// Public Route (Used by the Contact Page)
+router.post("/submit", submitEnquiry);
+
+// Admin Routes (Used by your Admin Console)
+router.get("/", getAllEnquiries);
+router.delete("/:id", deleteEnquiry);
 
 export default router;

@@ -1,26 +1,49 @@
 import Contact from "../models/ContactModel.js";
 
-export const createContact = async (req, res) => {
+// [CREATE] - For the Public Contact Form
+export const submitEnquiry = async (req, res) => {
   try {
-    const { fullName, email, mobile, message } = req.body;
+    // 1. Extract data from the frontend request body
+    const { fullName, email, phoneNumber, enquiryType, message } = req.body;
 
-    if (!fullName || !email || !message) {
-      return res.status(400).json({
-        message: "Full name, email and message are required"
-      });
-    }
-
-    await Contact.create({
+    // 2. Create a new document in the database
+    const newEnquiry = await Contact.create({
       fullName,
       email,
-      mobile,
+      phoneNumber,
+      enquiryType,
       message
     });
 
-    res.status(201).json({
-      message: "Thank you for contacting us"
+    // 3. Send success response back to Renny website
+    res.status(201).json({ 
+      success: true, 
+      message: "Your enquiry has been received!", 
+      data: newEnquiry 
     });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    // Handle errors (e.g., missing required fields)
+    console.error("Submission Error:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// [READ] - For the Admin Panel News/Enquiry Console
+export const getAllEnquiries = async (req, res) => {
+  try {
+    const enquiries = await Contact.find().sort({ createdAt: -1 });
+    res.status(200).json({ success: true, data: enquiries });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// [DELETE] - To remove an enquiry from the console
+export const deleteEnquiry = async (req, res) => {
+  try {
+    await Contact.findByIdAndDelete(req.params.id);
+    res.status(200).json({ success: true, message: "Enquiry deleted" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };

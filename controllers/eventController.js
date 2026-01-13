@@ -13,14 +13,22 @@ export const upsertEvent = async (req, res) => {
   }
 };
 
-// [READ] - Get all events
+// [READ] - Get all events (Refined for Admin & Public)
 export const getAllEvents = async (req, res) => {
   try {
     const { role } = req.query;
-    // If not admin, only show published events
+
+    // Logic: If role is admin, empty query {} (fetch all). 
+    // Otherwise, fetch only { status: "published" }.
     const query = role === 'admin' ? {} : { status: "published" };
+
     const events = await Event.find(query).sort({ order: 1, createdAt: -1 });
-    res.status(200).json({ success: true, data: events });
+
+    res.status(200).json({ 
+      success: true, 
+      count: events.length,
+      data: events 
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
