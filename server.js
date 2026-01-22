@@ -17,7 +17,7 @@ import policiesRoutes from './routes/policiesRoutes.js';
 import ipoAvRoutes from './routes/ipoAvRoutes.js';
 import governanceRoutes from './routes/governanceRoutes.js';
 import sustainabilityRoutes from './routes/sustainabilityRoutes.js';
-
+import certificateRoutes from './routes/certificateRoutes.js';
 const app = express();
 
 connectDB();
@@ -42,6 +42,8 @@ app.use('/api/policies', policiesRoutes);
 app.use('/api/ipo-av', ipoAvRoutes);
 app.use('/api/governance', governanceRoutes);
 app.use('/api/sustainability', sustainabilityRoutes);
+app.use('/api/certificates', certificateRoutes);
+
 // CMS APIs -> crud operations - Used by your Admin Panel
 app.use('/cms/blogs', blogRoutes);
 app.use('/cms/news', newsRoutes);
@@ -56,6 +58,7 @@ app.use('/cms/shareholding-pattern', shareholdingRoutes);
 app.use('/cms/ipo-av', ipoAvRoutes);
 app.use('/cms/governance', governanceRoutes);
 app.use('/cms/sustainability', sustainabilityRoutes);
+app.use('/cms/certificates', certificateRoutes);
 // Health check
 app.use((req, res, next) => {
   res.status(404).send('Route not found');
