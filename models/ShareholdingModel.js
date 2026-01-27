@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
 
 const patternSchema = new mongoose.Schema({
-  title: { type: String, required: true }, // e.g., "Share holding pattern - Q3 2025"
-  url: { type: String, required: true },   // Google Drive Link
+  title: { type: String, required: true }, 
+  url: { type: String, required: true },   // Now stores S3 link or Drive link
+  type: { type: String, enum: ['file', 'link'], default: 'file' },
   uploadedAt: { type: Date, default: Date.now }
 });
 

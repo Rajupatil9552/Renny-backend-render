@@ -1,31 +1,55 @@
 import News from "../models/Newsmodel.js";
 
-/**
- * [UPSERT] Create or Update News
- */
 export const upsertNews = async (req, res) => {
   const { id, ...data } = req.body;
 
   try {
-    let news;
-
-    if (data.title && !data.slug) {
+    // Base slug from title
+    if (data.title) {
       data.slug = data.title
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)+/g, '');
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
     }
 
-    if (id && id.length === 24) {
-      news = await News.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+    let news;
+
+    if (id) {
+      // ---------- UPDATE ----------
+      news = await News.findById(id);
+      if (!news) {
+        return res.status(404).json({ success: false, message: "News not found" });
+      }
+
+      // Keep old slug if title didn't change
+      if (news.title !== data.title) {
+        data.slug = `${data.slug}-${Date.now()}`;
+      } else {
+        data.slug = news.slug;
+      }
+
+      Object.assign(news, data);
+      await news.save();
+
     } else {
-      if (!id) data.slug = `${data.slug}-${Date.now()}`;
+      // ---------- CREATE ----------
+      data.slug = `${data.slug}-${Date.now()}`;
       news = await News.create(data);
     }
 
     res.status(200).json({ success: true, data: news });
+
   } catch (err) {
     console.error("UPSERT ERROR:", err);
+
+    if (err.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "News title already exists. Please use a different headline."
+      });
+    }
+
     res.status(500).json({ success: false, message: err.message });
   }
 };

@@ -3,12 +3,23 @@ import Event from "../models/EventModel.js";
 // [CREATE or UPDATE] - Upsert logic
 export const upsertEvent = async (req, res) => {
   const { id, ...data } = req.body;
+
   try {
-    const event = id 
-      ? await Event.findByIdAndUpdate(id, data, { new: true }) 
-      : await Event.create(data);
+    let event;
+
+    // Strict ID check: Only use findByIdAndUpdate if id is a valid 24-char string
+    if (id && id !== "" && id.length === 24) {
+      event = await Event.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+    } else {
+      // Create a new event if no valid ID is provided
+      event = await Event.create(data);
+    }
+
+    if (!event) return res.status(404).json({ success: false, message: "Event not found" });
+    
     res.status(200).json({ success: true, data: event });
   } catch (err) {
+    console.error("UPSERT ERROR:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 };

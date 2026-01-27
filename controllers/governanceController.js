@@ -1,6 +1,5 @@
 import Governance from '../models/GovernanceModel.js';
 
-// GET all governance data
 export const getGovernanceData = async (req, res) => {
   try {
     const data = await Governance.find().sort({ order: 1 });
@@ -10,7 +9,6 @@ export const getGovernanceData = async (req, res) => {
   }
 };
 
-// Add or Update a particular record (Director or Contact)
 export const upsertGovernanceRecord = async (req, res) => {
   const { slug, label, order, recordId, ...fields } = req.body;
   try {
@@ -22,7 +20,8 @@ export const upsertGovernanceRecord = async (req, res) => {
 
     if (recordId) {
       const item = section.content.id(recordId);
-      if (item) Object.assign(item, fields);
+      // 'fields' will contain the 'img' S3 URL sent from the frontend
+      if (item) Object.assign(item, fields); 
     } else {
       section.content.push(fields);
     }
@@ -34,7 +33,6 @@ export const upsertGovernanceRecord = async (req, res) => {
   }
 };
 
-// Delete a particular record
 export const deleteParticularGovernanceItem = async (req, res) => {
   const { slug, itemId } = req.params;
   try {

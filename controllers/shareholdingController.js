@@ -13,7 +13,7 @@ export const getShareholdingPatterns = async (req, res) => {
 
 // --- CMS: UPSERT (Create/Update Particular Record) ---
 export const upsertShareholdingRecord = async (req, res) => {
-  const { title, url, recordId } = req.body;
+  const { title, url, recordId, type } = req.body; // Added type
   const slug = "shareholding-pattern";
 
   try {
@@ -23,15 +23,14 @@ export const upsertShareholdingRecord = async (req, res) => {
     }
 
     if (recordId) {
-      // Logic for updating a particular record
       const record = page.patterns.id(recordId);
       if (record) {
         record.title = title;
         record.url = url;
+        record.type = type || 'file'; // Update type
       }
     } else {
-      // Logic for adding a new particular record
-      page.patterns.push({ title, url });
+      page.patterns.push({ title, url, type: type || 'file' });
     }
 
     await page.save();

@@ -1,28 +1,27 @@
 import mongoose from 'mongoose';
 
 const governanceContentSchema = new mongoose.Schema({
-  // Common to all
   name: { type: String, required: true },
-  designation: { type: String }, // Used as 'role' in Board and 'Designation' in Committees
+  designation: { type: String }, 
   
-  // Board Specific
-  img: { type: String },         
+  // Board Specific - Stores S3 URL
+  img: { type: String },          
   
   // Committee Specific
-  committeeTitle: { type: String }, // e.g., "AUDIT COMMITTEE"
-  position: { type: String },       // e.g., "Chairman" or "Member"
+  committeeTitle: { type: String }, 
+  position: { type: String },       
   
-  // Contact Specific (From your Image)
-  companyName: { type: String },    // "Renny Strips Limited"
-  email: { type: String },          // "compliance@rennystrips.com"
-  phone: { type: String },          // "+91 6283368523"
-  officeAddress: { type: String },  // Full address text
+  // Contact Specific
+  companyName: { type: String },    
+  email: { type: String },          
+  phone: { type: String },          
+  officeAddress: { type: String },  
   
   uploadedAt: { type: Date, default: Date.now }
 });
 
 const governanceSchema = new mongoose.Schema({
-  slug: { type: String, required: true, unique: true }, // 'board', 'committee', or 'contact'
+  slug: { type: String, required: true, unique: true }, 
   label: { type: String, required: true }, 
   order: { type: Number, default: 0 },
   content: [governanceContentSchema]

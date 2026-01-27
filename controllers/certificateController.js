@@ -1,7 +1,4 @@
-
 import Certificate from '../models/CertificateModel.js';
-import fs from 'fs';
-import path from 'path';
 
 export const getCertificates = async (req, res) => {
   try {
@@ -12,51 +9,29 @@ export const getCertificates = async (req, res) => {
   }
 };
 
-export const addCertificate = async (req, res) => {
+// Simplified Upsert Logic for Cloud Storage
+export const upsertCertificate = async (req, res) => {
+  const { id, title, img, type } = req.body;
   try {
-    const newCert = new Certificate({
-      title: req.body.title,
-      img: req.file ? `/uploads/certificates/${req.file.filename}` : ''
-    });
-    await newCert.save();
-    res.status(201).json(newCert);
+    let cert;
+    if (id && id.length === 24) {
+      cert = await Certificate.findByIdAndUpdate(
+        id, 
+        { title, img, type: type || 'file' }, 
+        { new: true }
+      );
+    } else {
+      cert = await Certificate.create({ title, img, type: type || 'file' });
+    }
+    res.status(200).json(cert);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
-export const updateCertificate = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { title } = req.body;
-    const cert = await Certificate.findById(id);
 
-    if (!cert) return res.status(404).json({ message: "Certificate not found" });
-
-    let updatedData = { title };
-
-    if (req.file) {
-      // Delete old image file
-      const oldPath = path.join(process.cwd(), cert.img);
-      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-      
-      // Set new image path
-      updatedData.img = `/uploads/certificates/${req.file.filename}`;
-    }
-
-    const updatedCert = await Certificate.findByIdAndUpdate(id, updatedData, { new: true });
-    res.json(updatedCert);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
 export const deleteCertificate = async (req, res) => {
   try {
-    const cert = await Certificate.findById(req.params.id);
-    if (cert && cert.img) {
-      // Optional: Delete physical file from server
-      const filePath = path.join(process.cwd(), cert.img);
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-    }
+    // Note: To delete the physical file from S3, you would call your S3 delete utility here
     await Certificate.findByIdAndDelete(req.params.id);
     res.json({ message: "Certificate deleted successfully" });
   } catch (err) {

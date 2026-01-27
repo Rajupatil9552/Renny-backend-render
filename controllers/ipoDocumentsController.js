@@ -12,7 +12,7 @@ export const getIpoDocuments = async (req, res) => {
 
 // --- CMS: UPSERT (Create/Update Particular Record) ---
 export const upsertIpoRecord = async (req, res) => {
-  const { title, url, recordId } = req.body;
+  const { title, url, recordId, type } = req.body;
   const slug = "ipo-documents";
 
   try {
@@ -22,15 +22,14 @@ export const upsertIpoRecord = async (req, res) => {
     }
 
     if (recordId) {
-      // Update existing record
       const doc = page.documents.id(recordId);
       if (doc) {
         doc.title = title;
         doc.url = url;
+        doc.type = type || 'file';
       }
     } else {
-      // Add new record
-      page.documents.push({ title, url });
+      page.documents.push({ title, url, type: type || 'file' });
     }
 
     await page.save();
@@ -42,15 +41,22 @@ export const upsertIpoRecord = async (req, res) => {
 
 // --- CMS: DELETE PARTICULAR RECORD ---
 export const deleteParticularIpoRecord = async (req, res) => {
-  const { recordId } = req.params;
+  const { recordId } = req.params; // Captures ID from /record/:recordId
+  
   try {
     const page = await IpoDocument.findOne({ slug: "ipo-documents" });
-    if (!page) return res.status(404).json({ message: "Page not found" });
+    if (!page) return res.status(404).json({ message: "Page data not found" });
 
-    page.documents.pull({ _id: recordId }); // Removes only that specific PDF
+    // 1. Debugging: Check if recordId is arriving correctly
+    console.log("Attempting to delete record with ID:", recordId);
+
+    // 2. Mongoose pull logic
+    page.documents.pull({ _id: recordId }); 
+    
     await page.save();
-    res.status(200).json({ message: "Record deleted", page });
+    res.status(200).json({ message: "Record deleted successfully", page });
   } catch (error) {
+    console.error("Delete Controller Error:", error.message);
     res.status(500).json({ message: "Error deleting record", error: error.message });
   }
 };

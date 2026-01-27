@@ -25,25 +25,23 @@ export const getIndustryReports = async (req, res) => {
 // 2. Add or Update a report (Record)
 export const upsertIndustryReport = async (req, res) => {
   const { title, url, reportId } = req.body;
-  const slug = "industry-report"; // Fixed slug for this specific page
+  const slug = "industry-report";
 
   try {
     const page = await Industry.findOneAndUpdate(
       { slug },
-      { slug }, // Ensure it exists
+      { slug },
       { new: true, upsert: true }
     );
 
     if (reportId) {
-      // Logic for updating a particular record
       const report = page.reports.id(reportId);
       if (report) {
         report.title = title;
-        report.url = url;
+        report.url = url; // Updating with the new S3 URL
       }
     } else {
-      // Logic for adding a new particular record
-      page.reports.push({ title, url });
+      page.reports.push({ title, url }); // Adding a new S3 URL record
     }
 
     await page.save();

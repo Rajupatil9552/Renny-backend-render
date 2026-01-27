@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
 
 const documentSchema = new mongoose.Schema({
-  title: { type: String, required: true }, // e.g., "DRHP"
-  url: { type: String, required: true },   // Google Drive Link
+  title: { type: String, required: true }, 
+  url: { type: String, required: true },   // Now handles S3 link or Drive link
+  type: { type: String, enum: ['file', 'link'], default: 'file' },
   uploadedAt: { type: Date, default: Date.now }
 });
 

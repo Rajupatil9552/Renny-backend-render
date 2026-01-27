@@ -18,6 +18,7 @@ import ipoAvRoutes from './routes/ipoAvRoutes.js';
 import governanceRoutes from './routes/governanceRoutes.js';
 import sustainabilityRoutes from './routes/sustainabilityRoutes.js';
 import certificateRoutes from './routes/certificateRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
 const app = express();
 
 connectDB();
@@ -44,6 +45,7 @@ app.use('/api/governance', governanceRoutes);
 app.use('/api/sustainability', sustainabilityRoutes);
 app.use('/api/certificates', certificateRoutes);
 
+app.use('/cms/upload', uploadRoutes);
 // CMS APIs -> crud operations - Used by your Admin Panel
 app.use('/cms/blogs', blogRoutes);
 app.use('/cms/news', newsRoutes);

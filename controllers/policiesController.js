@@ -13,12 +13,11 @@ export const getAllPolicies = async (req, res) => {
 
 // --- CMS: UPSERT (Create or Update Policy) ---
 export const upsertPolicy = async (req, res) => {
-  const { slug, label, docName, url, order } = req.body;
+  const { slug, label, docName, url, order, type } = req.body;
   try {
-    // We use the slug as the unique key to determine Update vs Insert
     const policy = await Policy.findOneAndUpdate(
       { slug },
-      { label, docName, url, order },
+      { label, docName, url, order, type: type || 'file' },
       { new: true, upsert: true }
     );
     res.status(200).json(policy);

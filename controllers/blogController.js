@@ -1,19 +1,5 @@
 import Blog from "../models/BlogModel.js";
 
-// [CREATE] - Create a new blog (Draft or Published)
-export const createBlog = async (req, res) => {
-  try {
-    const { status } = req.body;
-    const newBlog = new Blog({
-      ...req.body,
-      publishedAt: status === "published" ? new Date() : null
-    });
-    const savedBlog = await newBlog.save();
-    res.status(201).json({ success: true, data: savedBlog });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
-};
 
 // [READ ALL] - For Admin (All) and Frontend (Only Published)
 export const getBlogs = async (req, res) => {
@@ -43,20 +29,28 @@ export const getBlog = async (req, res) => {
   }
 };
 
-// [UPDATE] - Update content or status (e.g., Draft -> Published)
+export const createBlog = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const newBlog = new Blog({
+      ...req.body,
+      publishedAt: status === "published" ? new Date() : null
+    });
+    const savedBlog = await newBlog.save();
+    res.status(201).json({ success: true, data: savedBlog });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
 export const updateBlog = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    
-    // If status is being changed to published for the first time
-    if (status === "published") {
-      req.body.publishedAt = new Date();
-    }
+    if (status === "published") req.body.publishedAt = new Date();
 
     const updatedBlog = await Blog.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
     if (!updatedBlog) return res.status(404).json({ success: false, message: "Blog not found" });
-    
     res.status(200).json({ success: true, data: updatedBlog });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });

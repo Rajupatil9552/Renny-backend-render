@@ -3,11 +3,13 @@ import mongoose from "mongoose";
 const sectionSchema = new mongoose.Schema({
   type: { 
     type: String, 
-    enum: ["paragraph", "heading", "numbered-list", "bullet-list"], 
+    // "image" is now a valid section type alongside text and lists
+    enum: ["paragraph", "heading", "numbered-list", "bullet-list", "image"], 
     required: true 
   },
-  content: { type: String }, // Used for paragraphs and headings
-  listItems: [{              // Used for lists (Item title + Description)
+  content: { type: String }, // Stores text or image captions
+  image: { type: String },   // Stores the S3 URL for image sections
+  listItems: [{ 
     title: String,
     description: String
   }]
@@ -17,7 +19,7 @@ const blogSchema = new mongoose.Schema({
   title: { type: String, required: true, trim: true },
   slug: { type: String, unique: true, lowercase: true },
   excerpt: { type: String, required: true },
-  mainImage: { type: String },
+  mainImage: { type: String }, // Thumbnail/Hero image
   bodySections: [sectionSchema],
   status: { 
     type: String, 
@@ -27,15 +29,14 @@ const blogSchema = new mongoose.Schema({
   publishedAt: { type: Date }
 }, { timestamps: true });
 
-// Auto-generate slug from title - Fixed Version
+// Existing slug logic remains unchanged
 blogSchema.pre("save", async function() {
   if (this.isModified("title") && this.title) {
     this.slug = this.title
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric with hyphens
-      .replace(/(^-|-$)+/g, '');    // Trim hyphens from start/end
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '');    
   }
-  
 });
 
-export default mongoose.model("Blog", blogSchema);  
+export default mongoose.model("Blog", blogSchema);
