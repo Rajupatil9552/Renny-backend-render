@@ -1,5 +1,4 @@
-import Industry from "../models/IndustryReportmodel.js";
-/**
+import Industry from "../models/IndustryReportModel.js";
  * @desc    Get all Industry Reports for the frontend
  * @route   GET /api/industry-report
  */
