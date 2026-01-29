@@ -1,13 +1,12 @@
-
 import express from 'express';
 import { submitReport, getReportLeads } from '../controllers/sustainabilityController.js';
 
 const router = express.Router();
 
-// Public route for the sustainability page form
-router.post('/submit-report', submitReport);
+// Changed to /submit to match your frontend axios call
+router.post('/submit', submitReport);
 
-// Admin route to view all submissions in the panel
+// Admin route
 router.get('/admin/leads', getReportLeads);
 
 export default router;

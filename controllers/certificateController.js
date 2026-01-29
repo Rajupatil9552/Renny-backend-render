@@ -1,40 +1,52 @@
 import Certificate from '../models/CertificateModel.js';
 
+// [READ] - Get all certificates for frontend
 export const getCertificates = async (req, res) => {
   try {
     const certs = await Certificate.find().sort({ createdAt: -1 });
-    res.json(certs);
+    res.status(200).json({ success: true, data: certs });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
-// Simplified Upsert Logic for Cloud Storage
+// [UPSERT] - Create or Update certificates with S3 support
 export const upsertCertificate = async (req, res) => {
-  const { id, title, img, type } = req.body;
+  // Destructure description from body to match new schema
+  const { id, title, img, description, type } = req.body;
+  
   try {
     let cert;
+    
+    // Strict ID check for MongoDB Atlas
     if (id && id.length === 24) {
       cert = await Certificate.findByIdAndUpdate(
         id, 
-        { title, img, type: type || 'file' }, 
-        { new: true }
+        { title, img, description, type: type || 'file' }, 
+        { new: true, runValidators: true }
       );
     } else {
-      cert = await Certificate.create({ title, img, type: type || 'file' });
+      // Create new record if no valid ID is provided
+      cert = await Certificate.create({ 
+        title, 
+        img, 
+        description, 
+        type: type || 'file' 
+      });
     }
-    res.status(200).json(cert);
+    
+    res.status(200).json({ success: true, data: cert });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(400).json({ success: false, message: err.message });
   }
 };
 
+// [DELETE]
 export const deleteCertificate = async (req, res) => {
   try {
-    // Note: To delete the physical file from S3, you would call your S3 delete utility here
     await Certificate.findByIdAndDelete(req.params.id);
-    res.json({ message: "Certificate deleted successfully" });
+    res.status(200).json({ success: true, message: "Certificate deleted successfully" });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ success: false, message: err.message });
   }
 };

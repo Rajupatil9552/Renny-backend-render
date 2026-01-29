@@ -5,6 +5,7 @@ export const upsertJob = async (req, res) => {
   const { id, ...data } = req.body;
   try {
     let job;
+    // Only update if id is a valid 24-char MongoDB string
     if (id && id.length === 24) {
       job = await Job.findByIdAndUpdate(id, data, { new: true, runValidators: true });
     } else {
@@ -12,8 +13,9 @@ export const upsertJob = async (req, res) => {
     }
     res.status(200).json({ success: true, data: job });
   } catch (err) {
-    // THIS LINE IS KEY: It will print the exact validation error in your VS Code terminal
-    console.error("DETAILED JOB ERROR:", err.message); 
+    if (err.code === 11000) {
+      return res.status(400).json({ success: false, message: "A job with this title already exists." });
+    }
     res.status(500).json({ success: false, message: err.message });
   }
 };
