@@ -1,7 +1,5 @@
 import Industry from "../models/IndustryReportModel.js";
- * @desc    Get all Industry Reports for the frontend
- * @route   GET /api/industry-report
- */
+
 export const getIndustryReports = async (req, res) => {
   try {
     // We search for the unique slug we defined in the model
