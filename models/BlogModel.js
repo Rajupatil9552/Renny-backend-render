@@ -4,7 +4,7 @@ const sectionSchema = new mongoose.Schema({
   type: { 
     type: String, 
     // "image" is now a valid section type alongside text and lists
-    enum: ["paragraph", "heading", "numbered-list", "bullet-list", "image"], 
+    enum: ["paragraph", "heading", "numbered-list", "bullet-list", "image", "table"], 
     required: true 
   },
   content: { type: String }, // Stores text or image captions
@@ -12,13 +12,14 @@ const sectionSchema = new mongoose.Schema({
   listItems: [{ 
     title: String,
     description: String
-  }]
+  }],
+  table: { type: mongoose.Schema.Types.Mixed }
 }, { _id: false });
 
 const blogSchema = new mongoose.Schema({
   title: { type: String, required: true, trim: true },
   slug: { type: String, unique: true, lowercase: true },
-  excerpt: { type: String, required: true },
+  excerpt: { type: String },
   mainImage: { type: String }, // Thumbnail/Hero image
   bodySections: [sectionSchema],
   status: { 
@@ -26,6 +27,7 @@ const blogSchema = new mongoose.Schema({
     enum: ["draft", "published"], 
     default: "draft" 
   },
+  date: { type: Date },
   publishedAt: { type: Date }
 }, { timestamps: true });
 

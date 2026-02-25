@@ -1,7 +1,9 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import connectDB from './config/db.js';
-import 'dotenv/config';
+//import 'dotenv/config';
 import { globalErrorHandler } from './middlewares/errorHandler.js';
 import blogRoutes from './routes/blogRoutes.js';
 import newsRoutes from './routes/newsRoutes.js';
@@ -19,6 +21,9 @@ import governanceRoutes from './routes/governanceRoutes.js';
 import sustainabilityRoutes from './routes/sustainabilityRoutes.js';
 import certificateRoutes from './routes/certificateRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import newsletterRoutes from './routes/newsletterRoutes.js';
+import adminAuthRoutes from './routes/adminAuthRoutes.js';
+import { protectAdmin } from './middlewares/authMiddleware.js';
 const app = express();
 
 connectDB();
@@ -48,8 +53,14 @@ app.use('/api/ipo-av', ipoAvRoutes);
 app.use('/api/governance', governanceRoutes);
 app.use('/api/sustainability', sustainabilityRoutes);
 app.use('/api/certificates', certificateRoutes);
+app.use('/api/newsletter', newsletterRoutes);
 
-app.use('/cms/upload', uploadRoutes);
+// CMS Auth API
+app.use('/cms/auth', adminAuthRoutes);
+
+// Protect all CMS routes below
+app.use('/cms', protectAdmin);
+
 // CMS APIs -> crud operations - Used by your Admin Panel
 app.use('/cms/blogs', blogRoutes);
 app.use('/cms/news', newsRoutes);
@@ -65,6 +76,8 @@ app.use('/cms/ipo-av', ipoAvRoutes);
 app.use('/cms/governance', governanceRoutes);
 app.use('/cms/sustainability', sustainabilityRoutes);
 app.use('/cms/certificates', certificateRoutes);
+app.use('/cms/upload', uploadRoutes);
+app.use('/cms/newsletter', newsletterRoutes);
 // Health check
 app.use((req, res, next) => {
   res.status(404).send('Route not found');

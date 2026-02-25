@@ -1,12 +1,31 @@
 import Candidate from "../models/CandidateModel.js";
+import Job from "../models/JobModel.js";
+import { sendCareerApplicationEmails } from "../utils/sendEmail.js";
 
 export const applyToJob = async (req, res) => {
   try {
     const application = await Candidate.create(req.body);
-    res.status(201).json({ 
-      success: true, 
-      message: "Application submitted successfully!", 
-      data: application 
+
+    // --- Send confirmation emails (non-blocking) ---
+    Job.findById(application.jobId)
+      .then((job) => {
+        return sendCareerApplicationEmails({
+          firstName: application.firstName,
+          lastName: application.lastName,
+          email: application.email,
+          phoneNumber: application.phoneNumber,
+          jobTitle: job ? job.title : "N/A",
+          jobDepartment: job ? job.department : "N/A",
+        });
+      })
+      .catch((emailErr) => {
+        console.error("Career application email failed:", emailErr.message);
+      });
+
+    res.status(201).json({
+      success: true,
+      message: "Application submitted successfully!",
+      data: application,
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
