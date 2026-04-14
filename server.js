@@ -35,6 +35,9 @@ import successStoryRoutes from './routes/successStoryRoutes.js';
 import plantRoutes from './routes/plantRoutes.js';
 import productContentRoutes from './routes/productContentRoutes.js';
 import scaffoldingRoutes from './routes/scaffoldingRoutes.js';
+import designCentreRoutes from './routes/designCentreRoutes.js';
+import contactInfoRoutes from './routes/contactInfoRoutes.js';
+
 const app = express();
 
 connectDB();
@@ -61,6 +64,7 @@ app.use('/api/governance', governanceRoutes);
 app.use('/api/sustainability', sustainabilityRoutes);
 app.use('/api/certificates', certificateRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Dynamic Page Sections & Specialized Data Models
 app.use('/api/page', pageSectionRoutes);
@@ -72,6 +76,9 @@ app.use('/api/success-stories', successStoryRoutes);
 app.use('/api/plants', plantRoutes);
 app.use('/api/product-content', productContentRoutes);
 app.use('/api/scaffolding', scaffoldingRoutes);
+app.use('/api/design-centre', designCentreRoutes);
+app.use('/api/contact-info', contactInfoRoutes);
+
 
 // CMS Auth API
 app.use('/cms/auth', adminAuthRoutes);
@@ -107,6 +114,9 @@ app.use('/cms/success-stories', successStoryRoutes);
 app.use('/cms/plants', plantRoutes);
 app.use('/cms/product-content', productContentRoutes);
 app.use('/cms/scaffolding', scaffoldingRoutes);
+app.use('/cms/design-centre', designCentreRoutes);
+app.use('/cms/contact-info', contactInfoRoutes);
+
 // Health check
 app.use((req, res, next) => {
   res.status(404).send('Route not found');
