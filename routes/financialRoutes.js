@@ -5,7 +5,7 @@ import {
   updateFinancialDocument,
   deleteFinancialCategory, 
   deleteFinancialDocument 
-} from '../controllers/financialController.js';
+} from '../controllers/FinancialController.js';
 
 const router = express.Router();
 

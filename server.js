@@ -24,16 +24,23 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import newsletterRoutes from './routes/newsletterRoutes.js';
 import adminAuthRoutes from './routes/adminAuthRoutes.js';
 import { protectAdmin } from './middlewares/authMiddleware.js';
+
+// New specialized CMS and Page Section Routes
+import pageSectionRoutes from './routes/pageSectionRoutes.js';
+import timelineRoutes from './routes/timelineRoutes.js';
+import unitRoutes from './routes/unitRoutes.js';
+import specificationRoutes from './routes/specificationRoutes.js';
+import esgProjectRoutes from './routes/esgProjectRoutes.js';
+import successStoryRoutes from './routes/successStoryRoutes.js';
+import plantRoutes from './routes/plantRoutes.js';
+import productContentRoutes from './routes/productContentRoutes.js';
+import scaffoldingRoutes from './routes/scaffoldingRoutes.js';
 const app = express();
 
 connectDB();
 
 // Middlewares
-app.use(cors({
-    origin: '*', // Adjust the origin as per your client URL and port
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -54,6 +61,17 @@ app.use('/api/governance', governanceRoutes);
 app.use('/api/sustainability', sustainabilityRoutes);
 app.use('/api/certificates', certificateRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+
+// Dynamic Page Sections & Specialized Data Models
+app.use('/api/page', pageSectionRoutes);
+app.use('/api/timeline', timelineRoutes);
+app.use('/api/units', unitRoutes);
+app.use('/api/specifications', specificationRoutes);
+app.use('/api/esg-projects', esgProjectRoutes);
+app.use('/api/success-stories', successStoryRoutes);
+app.use('/api/plants', plantRoutes);
+app.use('/api/product-content', productContentRoutes);
+app.use('/api/scaffolding', scaffoldingRoutes);
 
 // CMS Auth API
 app.use('/cms/auth', adminAuthRoutes);
@@ -78,6 +96,17 @@ app.use('/cms/sustainability', sustainabilityRoutes);
 app.use('/cms/certificates', certificateRoutes);
 app.use('/cms/upload', uploadRoutes);
 app.use('/cms/newsletter', newsletterRoutes);
+
+// Editor CMS routes for dynamic data
+app.use('/cms/page', pageSectionRoutes);
+app.use('/cms/timeline', timelineRoutes);
+app.use('/cms/units', unitRoutes);
+app.use('/cms/specifications', specificationRoutes);
+app.use('/cms/esg-projects', esgProjectRoutes);
+app.use('/cms/success-stories', successStoryRoutes);
+app.use('/cms/plants', plantRoutes);
+app.use('/cms/product-content', productContentRoutes);
+app.use('/cms/scaffolding', scaffoldingRoutes);
 // Health check
 app.use((req, res, next) => {
   res.status(404).send('Route not found');
