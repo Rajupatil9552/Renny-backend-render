@@ -218,3 +218,64 @@ export const deleteAdmin = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Change admin password
+// @route   POST /cms/auth/change-password
+export const changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    // Validate inputs with detailed error messages
+    if (!currentPassword) {
+      return res.status(400).json({ message: 'Current password is required', field: 'currentPassword' });
+    }
+
+    if (!newPassword) {
+      return res.status(400).json({ message: 'New password is required', field: 'newPassword' });
+    }
+
+    if (!confirmPassword) {
+      return res.status(400).json({ message: 'Confirm password is required', field: 'confirmPassword' });
+    }
+
+    // Validate password length
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'New password must be at least 6 characters long', field: 'newPassword' });
+    }
+
+    // Check if new passwords match
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: 'New passwords do not match', field: 'confirmPassword' });
+    }
+
+    // Check if new password is same as current password
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ message: 'New password must be different from current password', field: 'newPassword' });
+    }
+
+    // Get admin from database
+    const admin = await Admin.findById(req.admin._id);
+
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+
+    // Verify current password
+    const isPasswordMatch = await admin.matchPassword(currentPassword);
+    if (!isPasswordMatch) {
+      return res.status(401).json({ message: 'Current password is incorrect', field: 'currentPassword' });
+    }
+
+    // Update password
+    admin.password = newPassword;
+    admin.mustChangePassword = false;
+    await admin.save();
+
+    res.json({
+      message: 'Password changed successfully',
+      mustChangePassword: admin.mustChangePassword,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
