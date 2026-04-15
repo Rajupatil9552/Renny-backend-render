@@ -12,7 +12,15 @@ const generateToken = (id, role) => {
 // @route   POST /cms/auth/register
 export const registerAdmin = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
+
+    const existingAdminCount = await Admin.countDocuments();
+
+    if (existingAdminCount > 0) {
+      return res.status(403).json({
+        message: 'Public admin registration is disabled. Ask a superadmin to create your account.',
+      });
+    }
 
     const adminExists = await Admin.findOne({ email });
 
@@ -24,7 +32,8 @@ export const registerAdmin = async (req, res, next) => {
       name,
       email,
       password,
-      role: role || 'admin',
+      role: 'superadmin',
+      mustChangePassword: false,
     });
 
     if (admin) {
@@ -33,6 +42,8 @@ export const registerAdmin = async (req, res, next) => {
         name: admin.name,
         email: admin.email,
         role: admin.role,
+        isActive: admin.isActive,
+        mustChangePassword: admin.mustChangePassword,
         token: generateToken(admin._id, admin.role),
       });
     } else {
@@ -51,12 +62,25 @@ export const loginAdmin = async (req, res, next) => {
 
     const admin = await Admin.findOne({ email });
 
-    if (admin && (await admin.matchPassword(password))) {
+    if (!admin) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    if (!admin.isActive) {
+      return res.status(403).json({ message: 'Your admin account is inactive. Please contact a superadmin.' });
+    }
+
+    if (await admin.matchPassword(password)) {
+      admin.lastLoginAt = new Date();
+      await admin.save();
+
       res.json({
         _id: admin._id,
         name: admin.name,
         email: admin.email,
         role: admin.role,
+        isActive: admin.isActive,
+        mustChangePassword: admin.mustChangePassword,
         token: generateToken(admin._id, admin.role),
       });
     } else {
@@ -71,8 +95,46 @@ export const loginAdmin = async (req, res, next) => {
 // @route   GET /cms/auth/admins
 export const getAdmins = async (req, res, next) => {
   try {
-    const admins = await Admin.find({}).select('-password');
+    const admins = await Admin.find({})
+      .select('-password')
+      .populate('createdBy', 'name email role');
     res.json(admins);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Create a new admin from CMS
+// @route   POST /cms/auth/admins
+export const createAdmin = async (req, res, next) => {
+  try {
+    const { name, email, password, role, isActive, mustChangePassword } = req.body;
+
+    const adminExists = await Admin.findOne({ email });
+
+    if (adminExists) {
+      return res.status(400).json({ message: 'Admin already exists' });
+    }
+
+    const admin = await Admin.create({
+      name,
+      email,
+      password,
+      role: role || 'admin',
+      isActive: typeof isActive === 'boolean' ? isActive : true,
+      mustChangePassword: typeof mustChangePassword === 'boolean' ? mustChangePassword : true,
+      createdBy: req.admin._id,
+    });
+
+    res.status(201).json({
+      _id: admin._id,
+      name: admin.name,
+      email: admin.email,
+      role: admin.role,
+      isActive: admin.isActive,
+      mustChangePassword: admin.mustChangePassword,
+      createdBy: admin.createdBy,
+    });
   } catch (error) {
     next(error);
   }
@@ -85,7 +147,31 @@ export const updateAdminRole = async (req, res, next) => {
     const admin = await Admin.findById(req.params.id);
 
     if (admin) {
-      admin.role = req.body.role || admin.role;
+      const { role, isActive, mustChangePassword, name } = req.body;
+      const nextRole = role || admin.role;
+      const isSelf = req.params.id === req.admin._id.toString();
+      const superadminCount = await Admin.countDocuments({ role: 'superadmin' });
+
+      if (
+        admin.role === 'superadmin' &&
+        nextRole !== 'superadmin' &&
+        isSelf &&
+        req.admin.role === 'superadmin' &&
+        superadminCount === 1
+      ) {
+        return res.status(400).json({ message: 'At least one superadmin must remain assigned.' });
+      }
+
+      admin.name = name || admin.name;
+      admin.role = nextRole;
+
+      if (typeof isActive === 'boolean') {
+        admin.isActive = isActive;
+      }
+
+      if (typeof mustChangePassword === 'boolean') {
+        admin.mustChangePassword = mustChangePassword;
+      }
 
       const updatedAdmin = await admin.save();
       res.json({
@@ -93,6 +179,8 @@ export const updateAdminRole = async (req, res, next) => {
         name: updatedAdmin.name,
         email: updatedAdmin.email,
         role: updatedAdmin.role,
+        isActive: updatedAdmin.isActive,
+        mustChangePassword: updatedAdmin.mustChangePassword,
       });
     } else {
       res.status(404).json({ message: 'Admin not found' });
@@ -109,6 +197,18 @@ export const deleteAdmin = async (req, res, next) => {
     const admin = await Admin.findById(req.params.id);
 
     if (admin) {
+      if (req.params.id === req.admin._id.toString()) {
+        return res.status(400).json({ message: 'You cannot delete your own admin account.' });
+      }
+
+      if (admin.role === 'superadmin') {
+        const superadminCount = await Admin.countDocuments({ role: 'superadmin' });
+
+        if (superadminCount === 1) {
+          return res.status(400).json({ message: 'The last superadmin cannot be deleted.' });
+        }
+      }
+
       await Admin.deleteOne({ _id: admin._id });
       res.json({ message: 'Admin removed' });
     } else {

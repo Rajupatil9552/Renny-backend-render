@@ -21,6 +21,22 @@ const adminSchema = new mongoose.Schema(
       enum: ['admin', 'superadmin'],
       default: 'admin',
     },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    mustChangePassword: {
+      type: Boolean,
+      default: false,
+    },
+    lastLoginAt: {
+      type: Date,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Admin',
+      default: null,
+    },
   },
   { timestamps: true }
 );
