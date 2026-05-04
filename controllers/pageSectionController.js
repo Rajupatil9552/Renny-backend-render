@@ -36,3 +36,25 @@ export const upsertPageSection = async (req, res) => {
     res.status(500).json({ success: false, message: error.message, details: error.errors });
   }
 };
+
+export const deletePageSection = async (req, res) => {
+  try {
+    const { pageName, sectionName } = req.params;
+    
+    const deletedSection = await PageSection.findOneAndDelete({ 
+      page: pageName, 
+      sectionName: sectionName 
+    });
+
+    if (!deletedSection) {
+      return res.status(404).json({ success: false, message: "Page section not found" });
+    }
+
+    res.status(200).json({ success: true, message: "Page section deleted successfully" });
+  } catch (error) {
+    console.error("=== deletePageSection Error ===");
+    console.error("Message:", error.message);
+    console.error("Full error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
