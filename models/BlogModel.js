@@ -4,7 +4,7 @@ const sectionSchema = new mongoose.Schema({
   type: { 
     type: String, 
     // "image" is now a valid section type alongside text and lists
-    enum: ["paragraph", "heading", "numbered-list", "bullet-list", "image", "table"], 
+   enum: ["paragraph", "heading", "numbered-list", "bullet-list", "image", "table", "sub-point"],
     required: true 
   },
   content: { type: String }, // Stores text or image captions
