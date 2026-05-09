@@ -11,7 +11,8 @@ const sectionSchema = new mongoose.Schema({
   image: { type: String },   // Stores the S3 URL for image sections
   listItems: [{ 
     title: String,
-    description: String
+    description: String,
+    descriptions: [String]
   }],
   table: { type: mongoose.Schema.Types.Mixed }
 }, { _id: false });
