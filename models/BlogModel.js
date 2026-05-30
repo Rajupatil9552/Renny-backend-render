@@ -29,7 +29,10 @@ const blogSchema = new mongoose.Schema({
     default: "draft" 
   },
   date: { type: Date },
-  publishedAt: { type: Date }
+  publishedAt: { type: Date },
+  seoTitle: { type: String, trim: true },
+  seoDescription: { type: String, trim: true },
+  seoKeywords: { type: String, trim: true }
 }, { timestamps: true });
 
 // Existing slug logic remains unchanged
