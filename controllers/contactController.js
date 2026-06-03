@@ -5,15 +5,31 @@ import { sendContactEmails } from "../utils/sendEmail.js"; // Ensure this matche
 export const submitEnquiry = async (req, res) => {
   try {
     // 1. Extract data from the frontend request body
-    const { fullName, email, phoneNumber, enquiryType, message } = req.body;
+    const { 
+      fullName, 
+      email, 
+      companyName, 
+      classification, 
+      industry, 
+      country, 
+      phoneNumber, 
+      inquiry, 
+      privacyPolicyAccepted, 
+      receiveUpdates 
+    } = req.body;
 
     // 2. Create a new document in the database (Ensures the lead is saved first)
     const newEnquiry = await Contact.create({
       fullName,
       email,
+      companyName,
+      classification,
+      industry,
+      country,
       phoneNumber,
-      enquiryType,
-      message
+      inquiry,
+      privacyPolicyAccepted,
+      receiveUpdates
     });
 
     // 3. Trigger Email Notifications to BOTH ends
@@ -23,9 +39,13 @@ export const submitEnquiry = async (req, res) => {
       await sendContactEmails({ 
         fullName, 
         email, 
+        companyName, 
+        classification, 
+        industry, 
+        country, 
         phoneNumber, 
-        enquiryType, 
-        message 
+        inquiry, 
+        receiveUpdates 
       });
     } catch (mailError) {
       console.error("Email Notification Error:", mailError);

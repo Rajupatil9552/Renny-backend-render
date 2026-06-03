@@ -14,17 +14,21 @@ export const sendContactEmails = async (details) => {
   // --- 1. Admin Notification (Your Team) ---
   const adminMailOptions = {
     from: `"Renny Strips Website" <${process.env.SMTP_USER}>`,
-    to: "raju.patil@webisdom.com", // Your office email
-    subject: `New Lead: ${details.enquiryType} - ${details.fullName}`,
+    to: process.env.ENQUIRY_EMAIL, // Your office email
+    subject: `New Lead: ${details.classification} - ${details.fullName}`,
     html: `
       <div style="font-family: sans-serif; line-height: 1.5; color: #333;">
         <h2>New Website Enquiry</h2>
         <p><strong>Name:</strong> ${details.fullName}</p>
         <p><strong>Email:</strong> ${details.email}</p>
+        <p><strong>Company Name:</strong> ${details.companyName}</p>
+        <p><strong>Classification:</strong> ${details.classification}</p>
+        <p><strong>Industry:</strong> ${details.industry}</p>
+        <p><strong>Country:</strong> ${details.country}</p>
         <p><strong>Phone:</strong> ${details.phoneNumber}</p>
-        <p><strong>Type:</strong> ${details.enquiryType}</p>
-        <p><strong>Message:</strong></p>
-        <div style="background: #f4f4f4; p: 15px; border-radius: 5px;">${details.message}</div>
+        <p><strong>Receive Email Updates:</strong> ${details.receiveUpdates ? 'Yes' : 'No'}</p>
+        <p><strong>Inquiry Details:</strong></p>
+        <div style="background: #f4f4f4; padding: 15px; border-radius: 5px; white-space: pre-wrap;">${details.inquiry}</div>
       </div>
     `,
   };
@@ -37,8 +41,8 @@ export const sendContactEmails = async (details) => {
     html: `
       <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px;">
         <h2 style="color: #292c44;">Hello ${details.fullName},</h2>
-        <p>Thank you for reaching out to <strong>Renny Strips Limited</strong>. We have received your enquiry regarding <strong>${details.enquiryType}</strong>.</p>
-        <p>Our team is currently reviewing your message and will get back to you within 24-48 business hours.</p>
+        <p>Thank you for reaching out to <strong>Renny Strips Limited</strong>. We have received your <strong>${details.classification.toLowerCase()}</strong> regarding the <strong>${details.industry}</strong> industry.</p>
+        <p>Our team is currently reviewing your inquiry and will get back to you within 24-48 business hours.</p>
         <br />
         <p>Best Regards,</p>
         <p><strong>Customer Support Team</strong><br />Renny Strips Ltd.</p>
