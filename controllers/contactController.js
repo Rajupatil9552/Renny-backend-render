@@ -68,7 +68,23 @@ export const submitEnquiry = async (req, res) => {
 // [READ] - For the Admin Panel News/Enquiry Console
 export const getAllEnquiries = async (req, res) => {
   try {
-    const enquiries = await Contact.find().sort({ createdAt: -1 });
+    const { date } = req.query; // Expect format YYYY-MM-DD
+    let query = {};
+
+    if (date) {
+      const startOfDay = new Date(date);
+      startOfDay.setUTCHours(0, 0, 0, 0);
+
+      const endOfDay = new Date(date);
+      endOfDay.setUTCHours(23, 59, 59, 999);
+
+      query.createdAt = {
+        $gte: startOfDay,
+        $lte: endOfDay
+      };
+    }
+
+    const enquiries = await Contact.find(query).sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: enquiries });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
