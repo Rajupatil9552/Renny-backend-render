@@ -5,31 +5,15 @@ import { sendContactEmails } from "../utils/sendEmail.js"; // Ensure this matche
 export const submitEnquiry = async (req, res) => {
   try {
     // 1. Extract data from the frontend request body
-    const { 
-      fullName, 
-      email, 
-      companyName, 
-      classification, 
-      industry, 
-      country, 
-      phoneNumber, 
-      inquiry, 
-      privacyPolicyAccepted, 
-      receiveUpdates 
-    } = req.body;
+    const { fullName, email, phoneNumber, enquiryType, message } = req.body;
 
     // 2. Create a new document in the database (Ensures the lead is saved first)
     const newEnquiry = await Contact.create({
       fullName,
       email,
-      companyName,
-      classification,
-      industry,
-      country,
       phoneNumber,
-      inquiry,
-      privacyPolicyAccepted,
-      receiveUpdates
+      enquiryType,
+      message
     });
 
     // 3. Trigger Email Notifications to BOTH ends
@@ -39,13 +23,9 @@ export const submitEnquiry = async (req, res) => {
       await sendContactEmails({ 
         fullName, 
         email, 
-        companyName, 
-        classification, 
-        industry, 
-        country, 
         phoneNumber, 
-        inquiry, 
-        receiveUpdates 
+        enquiryType, 
+        message 
       });
     } catch (mailError) {
       console.error("Email Notification Error:", mailError);
@@ -68,24 +48,7 @@ export const submitEnquiry = async (req, res) => {
 // [READ] - For the Admin Panel News/Enquiry Console
 export const getAllEnquiries = async (req, res) => {
   try {
-    const { startDate, endDate } = req.query; // Expect format YYYY-MM-DD
-    let query = {};
-
-    if (startDate || endDate) {
-      query.createdAt = {};
-      if (startDate) {
-        const start = new Date(startDate);
-        start.setUTCHours(0, 0, 0, 0);
-        query.createdAt.$gte = start;
-      }
-      if (endDate) {
-        const end = new Date(endDate);
-        end.setUTCHours(23, 59, 59, 999);
-        query.createdAt.$lte = end;
-      }
-    }
-
-    const enquiries = await Contact.find(query).sort({ createdAt: -1 });
+    const enquiries = await Contact.find().sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: enquiries });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
